@@ -91,14 +91,14 @@ StreamGuard AI reimagines how content creators interact with their audience duri
 
 ## 🔧 How IBM Bob Was Used
 
-IBM Bob was used as the primary AI-powered development partner throughout the project:
+IBM Bob was used as our primary AI-powered development partner throughout the software lifecycle. See the complete report in **[IBM_BOB_WORKFLOW.md](IBM_BOB_WORKFLOW.md)**.
 
-- **Code Development** — Used IBM Bob to assist with building and refining the multi-agent AI pipeline
-- **Troubleshooting** — Completed the "Troubleshoot Your Code Using IBM Bob" lab on IBM SkillsBuild to learn debugging workflows
-- **Code Review** — Leveraged Bob for code quality improvements and architectural decisions
-- **Documentation** — Used Bob to help structure and write technical documentation
+- **Architecture Planning** — Designed the batch Orchestrator pattern for sub-second agent processing
+- **Code Optimization** — Refactored the Voice Matching engine with hybrid sequence matching and rolling buffers
+- **Troubleshooting** — Completed the *"Lab: Troubleshoot Your Code Using IBM Bob"* on IBM SkillsBuild and applied Bob's debugging workflows to fix async concurrency issues in WebSocket handlers
+- **Schema Validation** — Assisted in writing structured Pydantic models and TypeScript interfaces
 
-> *IBM SkillsBuild Activity Completed: "Lab: Troubleshoot Your Code Using IBM Bob" (30 Jul 2026)*
+> *IBM SkillsBuild Activity Completed: "Lab: Troubleshoot Your Code Using IBM Bob" (Completed 30 Jul 2026)*
 
 ## 🚀 How to Run
 

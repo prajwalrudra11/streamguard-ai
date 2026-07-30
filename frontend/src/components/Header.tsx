@@ -9,6 +9,7 @@ interface HeaderProps {
   onToggleVoice: () => void;
   isListening: boolean;
   voiceSupported: boolean;
+  onGoHome?: () => void;
 }
 
 export default function Header({
@@ -19,12 +20,16 @@ export default function Header({
   onToggleVoice,
   isListening,
   voiceSupported,
+  onGoHome,
 }: HeaderProps) {
   return (
     <header className="glass-strong border-b border-[hsl(220,12%,22%)] px-6 py-3 flex items-center justify-between sticky top-0 z-50">
       {/* Logo */}
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center text-lg">
+      <div 
+        onClick={onGoHome} 
+        className={`flex items-center gap-3 ${onGoHome ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}`}
+      >
+        <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center text-lg shadow-md shadow-[hsl(250,80%,60%,0.2)]">
           🛡️
         </div>
         <div>

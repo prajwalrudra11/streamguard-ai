@@ -15,6 +15,7 @@ import { api } from "@/lib/api";
 
 export default function Dashboard() {
   // ── State ──────────────────────────────────────────
+  const [showDashboard, setShowDashboard] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const [currentChat, setCurrentChat] = useState<SuperChat | null>(null);
   const [queue, setQueue] = useState<SuperChat[]>([]);
@@ -253,6 +254,73 @@ export default function Dashboard() {
   }, [isListening, startListening, stopListening, addActivity]);
 
   // ── Render ─────────────────────────────────────────
+  // ── Render ─────────────────────────────────────────
+  if (!showDashboard) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[hsl(220,25%,6%)] text-white p-6 relative overflow-hidden select-none">
+        {/* Animated Tech Background Grid & Glowing Orbs */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(56,189,248,0.06)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-[hsl(260,90%,60%,0.2)] rounded-full blur-[100px] pointer-events-none animate-float-glow-1" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[hsl(170,90%,50%,0.18)] rounded-full blur-[110px] pointer-events-none animate-float-glow-2" />
+        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-[hsl(330,90%,60%,0.15)] rounded-full blur-[90px] pointer-events-none animate-float-glow-1" />
+
+        {/* Main Hero Card */}
+        <div className="relative glass p-8 sm:p-12 md:p-14 rounded-3xl flex flex-col items-center text-center max-w-lg w-full shadow-[0_20px_80px_rgba(0,0,0,0.6)] border border-[hsl(220,20%,25%)] z-10 backdrop-blur-2xl transition-all duration-500 hover:border-[hsl(250,70%,60%,0.4)] hover:shadow-[0_25px_90px_rgba(168,85,247,0.25)]">
+          
+          {/* Top Pill Tag */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[hsl(250,80%,60%,0.12)] border border-[hsl(250,80%,60%,0.3)] text-xs font-semibold text-[hsl(250,90%,75%)] mb-7 tracking-wider uppercase shadow-inner">
+            <span className="w-2 h-2 rounded-full bg-[hsl(168,85%,52%)] animate-pulse" />
+            AI-Powered Stream Co-Pilot
+          </div>
+
+          {/* Glowing Animated Logo */}
+          <div className="relative mb-7 group cursor-pointer" onClick={() => setShowDashboard(true)}>
+            <div className="absolute -inset-2 rounded-3xl bg-gradient-to-r from-[hsl(168,85%,52%)] via-[hsl(280,80%,60%)] to-[hsl(330,85%,60%)] opacity-75 blur-md group-hover:opacity-100 transition duration-500 animate-pulse-ring" />
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[hsl(220,22%,12%)] border border-[hsl(220,15%,28%)] flex items-center justify-center text-5xl sm:text-6xl shadow-2xl transform group-hover:scale-105 group-hover:rotate-2 transition-all duration-300">
+              🛡️
+            </div>
+          </div>
+
+          {/* Title & Description */}
+          <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-3 bg-gradient-to-r from-[hsl(168,90%,55%)] via-[hsl(270,90%,70%)] to-[hsl(330,90%,65%)] bg-clip-text text-transparent drop-shadow-sm">
+            StreamGuard AI
+          </h1>
+          
+          <p className="text-sm sm:text-base text-[hsl(220,12%,70%)] mb-8 max-w-sm font-normal leading-relaxed">
+            Real-time voice moderation, super chat prioritization, and live stream analytics co-pilot.
+          </p>
+
+          {/* Feature Highlights */}
+          <div className="grid grid-cols-3 gap-2.5 w-full mb-9">
+            <div className="glass px-2.5 py-2 rounded-xl text-center border border-[hsl(220,12%,20%)] hover:border-[hsl(168,85%,52%,0.4)] transition-colors">
+              <div className="text-base mb-0.5">🎙️</div>
+              <div className="text-[11px] font-semibold text-[hsl(220,10%,80%)]">Voice Match</div>
+            </div>
+            <div className="glass px-2.5 py-2 rounded-xl text-center border border-[hsl(220,12%,20%)] hover:border-[hsl(280,80%,60%,0.4)] transition-colors">
+              <div className="text-base mb-0.5">⚡</div>
+              <div className="text-[11px] font-semibold text-[hsl(220,10%,80%)]">Smart Queue</div>
+            </div>
+            <div className="glass px-2.5 py-2 rounded-xl text-center border border-[hsl(220,12%,20%)] hover:border-[hsl(330,85%,60%,0.4)] transition-colors">
+              <div className="text-base mb-0.5">📊</div>
+              <div className="text-[11px] font-semibold text-[hsl(220,10%,80%)]">Analytics</div>
+            </div>
+          </div>
+
+          {/* Dashboard Button */}
+          <button
+            onClick={() => setShowDashboard(true)}
+            className="relative w-full py-4 px-8 rounded-2xl font-bold text-base bg-gradient-to-r from-[hsl(168,85%,48%)] via-[hsl(250,80%,60%)] to-[hsl(330,85%,60%)] text-white hover:shadow-[0_0_35px_rgba(168,85,247,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer group overflow-hidden"
+          >
+            <span className="relative z-10 tracking-wide">Dashboard</span>
+            <span className="relative z-10 text-lg group-hover:translate-x-1.5 transition-transform duration-300">→</span>
+            {/* Shimmer sweep effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen">
       <Header
@@ -263,6 +331,7 @@ export default function Dashboard() {
         onToggleVoice={handleToggleVoice}
         isListening={isListening}
         voiceSupported={isSupported}
+        onGoHome={() => setShowDashboard(false)}
       />
 
       <main className="flex-1 p-4 lg:p-6 overflow-hidden">
