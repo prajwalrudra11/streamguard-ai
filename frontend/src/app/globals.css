@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+/* ── StreamGuard AI Design System ─────────────────── */
+
+@layer base {
+  :root {
+    /* Brand Colors */
+    --sg-primary: 168 85% 52%;
+    --sg-primary-dark: 168 85% 40%;
+    --sg-accent: 280 80% 60%;
+    --sg-accent-light: 280 60% 75%;
+
+    /* Surface Colors (Dark Theme) */
+    --sg-bg: 220 20% 6%;
+    --sg-surface: 220 18% 10%;
+    --sg-surface-2: 220 16% 14%;
+    --sg-surface-3: 220 14% 18%;
+    --sg-border: 220 12% 22%;
+    --sg-border-light: 220 10% 28%;
+
+    /* Text */
+    --sg-text: 0 0% 95%;
+    --sg-text-muted: 220 10% 60%;
+    --sg-text-dim: 220 10% 40%;
+
+    /* Status Colors */
+    --sg-success: 152 70% 50%;
+    --sg-warning: 38 95% 55%;
+    --sg-danger: 0 75% 55%;
+    --sg-info: 210 90% 60%;
+
+    /* Tier Colors */
+    --sg-bronze: 30 60% 50%;
+    --sg-silver: 220 10% 65%;
+    --sg-gold: 45 90% 55%;
+    --sg-diamond: 195 100% 65%;
+
+    /* Shadows */
+    --sg-glow-primary: 0 0 30px hsl(168 85% 52% / 0.15);
+    --sg-glow-accent: 0 0 30px hsl(280 80% 60% / 0.15);
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--sg-border));
+  }
+
+  body {
+    background-color: hsl(var(--sg-bg));
+    color: hsl(var(--sg-text));
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--sg-surface));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--sg-border-light));
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--sg-text-dim));
+  }
+}
+
+/* ── Animations ──────────────────────────────────── */
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 8px hsl(168 85% 52% / 0.3); }
+  50% { box-shadow: 0 0 20px hsl(168 85% 52% / 0.5); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes bounceIn {
+  0% { opacity: 0; transform: scale(0.8); }
+  50% { transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-in-right { animation: slideInRight 0.4s ease-out; }
+.animate-slide-in-up { animation: slideInUp 0.35s ease-out; }
+.animate-fade-in { animation: fadeIn 0.3s ease-out; }
+.animate-pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
+.animate-bounce-in { animation: bounceIn 0.4s ease-out; }
+.animate-slide-down { animation: slideDown 0.3s ease-out; }
+.animate-count-up { animation: countUp 0.3s ease-out; }
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--sg-surface-2)) 0%,
+    hsl(var(--sg-surface-3)) 50%,
+    hsl(var(--sg-surface-2)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ── Utility Classes ─────────────────────────────── */
+
+.glass {
+  background: hsl(var(--sg-surface) / 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--sg-border) / 0.5);
+}
+
+.glass-strong {
+  background: hsl(var(--sg-surface) / 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid hsl(var(--sg-border));
+}
+
+.gradient-primary {
+  background: linear-gradient(135deg, hsl(var(--sg-primary)), hsl(var(--sg-accent)));
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, hsl(var(--sg-primary)), hsl(var(--sg-accent)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Tier badge styles */
+.tier-bronze { color: hsl(var(--sg-bronze)); border-color: hsl(var(--sg-bronze) / 0.4); background: hsl(var(--sg-bronze) / 0.1); }
+.tier-silver { color: hsl(var(--sg-silver)); border-color: hsl(var(--sg-silver) / 0.4); background: hsl(var(--sg-silver) / 0.1); }
+.tier-gold { color: hsl(var(--sg-gold)); border-color: hsl(var(--sg-gold) / 0.4); background: hsl(var(--sg-gold) / 0.1); }
+.tier-diamond { color: hsl(var(--sg-diamond)); border-color: hsl(var(--sg-diamond) / 0.4); background: hsl(var(--sg-diamond) / 0.1); }
+
+/* Risk level styles */
+.risk-low { color: hsl(var(--sg-success)); }
+.risk-medium { color: hsl(var(--sg-warning)); }
+.risk-high { color: hsl(var(--sg-danger)); }
+
+/* Sentiment styles */
+.sentiment-positive { color: hsl(var(--sg-success)); }
+.sentiment-neutral { color: hsl(var(--sg-text-muted)); }
+.sentiment-negative { color: hsl(var(--sg-danger)); }
