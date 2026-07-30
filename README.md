@@ -162,7 +162,7 @@ Frontend runs at: `http://localhost:3000`
 
 ## 🎬 Demo Video
 
-> 📹 [Watch the 3-minute demo video](#) *(link to be added)*
+> 📹 [Watch the 3-minute demo video](#) *( https://drive.google.com/file/d/1F1X7RLKFgW_iFOMuVIrUAFLRXpxxnRpm/view?usp=sharing )*
 
 ## 👥 Team
 
