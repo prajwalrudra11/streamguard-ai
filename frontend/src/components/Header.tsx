@@ -44,6 +44,14 @@ export default function Header({
 
       {/* Controls */}
       <div className="flex items-center gap-3">
+        {/* Trust Report Link */}
+        <a
+          href="/trust-report"
+          className="px-3.5 py-2 rounded-lg text-xs font-semibold bg-[hsl(168,85%,48%,0.15)] text-[hsl(168,85%,52%)] border border-[hsl(168,85%,48%,0.3)] hover:bg-[hsl(168,85%,48%,0.25)] transition-all flex items-center gap-1.5"
+        >
+          <span>📊</span> Trust Report
+        </a>
+
         {/* Voice Toggle */}
         {voiceSupported && isActive && (
           <button
