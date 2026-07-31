@@ -72,7 +72,7 @@ All four agents are powered by a **single optimized AI call** for speed and cost
 |-------|-----------|
 | Frontend | Next.js, TypeScript, Tailwind CSS |
 | Backend | FastAPI, Python, WebSocket |
-| AI Engine | Multi-Agent Pipeline (Orchestrator pattern) |
+| AI Engine | Multi-Agent Pipeline powered by **IBM Granite 3.1 (watsonx.ai)** |
 | Database | Supabase (PostgreSQL) |
 | Voice | Fuzzy matching with difflib + keyword overlap |
 | Real-time | WebSocket for instant updates |

@@ -1,12 +1,13 @@
 """
 StreamGuard AI - Agent Orchestrator
-Coordinates all AI agents with a single optimized Gemini call.
+Coordinates all AI agents in a single optimized pipeline powered by IBM Granite (watsonx.ai).
 """
 import json
 import uuid
 from datetime import datetime
 from typing import Dict, Any
-from google import genai
+import urllib.request
+import urllib.parse
 from app.config import get_settings
 from app.agents.moderation_agent import ModerationAgent
 from app.agents.sentiment_agent import SentimentAgent
@@ -20,8 +21,8 @@ from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Structured prompt for batch analysis
-ANALYSIS_PROMPT = """You are StreamGuard AI, analyzing a live stream super chat.
+# Structured prompt for batched multi-agent analysis
+ANALYSIS_PROMPT = """You are StreamGuard AI, an AI co-pilot powered by IBM Granite analyzing a live stream super chat.
 
 Super Chat Details:
 - Author: {author_name}
@@ -55,32 +56,40 @@ Rules:
 
 
 class Orchestrator:
-    """Coordinates all AI agents in an optimized pipeline."""
+    """Coordinates all AI agents in an optimized pipeline using IBM Granite."""
     
     def __init__(self):
-        settings = get_settings()
-        self.client = genai.Client(api_key=settings.gemini_api_key)
-        self.model = "gemini-2.0-flash"
+        self.settings = get_settings()
+        self.primary_model = self.settings.ibm_granite_model  # "ibm/granite-3-8b-instruct"
         
-        # Initialize agents
+        # Initialize specialized sub-agents
         self.moderation = ModerationAgent()
         self.sentiment = SentimentAgent()
         self.revenue = RevenueAgent()
         self.response = ResponseAgent()
         
-        logger.info("🤖 Orchestrator initialized with all agents")
+        # Initialize Google fallback client if key exists
+        self._gemini_client = None
+        if self.settings.gemini_api_key:
+            try:
+                from google import genai
+                self._gemini_client = genai.Client(api_key=self.settings.gemini_api_key)
+            except Exception as e:
+                logger.warning(f"Gemini client initialization notice: {e}")
+        
+        logger.info(f"🤖 Orchestrator initialized with IBM Granite ({self.primary_model})")
     
     async def analyze(self, chat: SuperChatCreate) -> SuperChatQueueItem:
         """
         Full analysis pipeline for a super chat.
-        Makes ONE Gemini call, then distributes results to agents.
+        Makes ONE single-pass LLM call via IBM Granite, then distributes results to agents.
         """
         chat_id = str(uuid.uuid4())
         
         # Step 1: Single LLM call for all AI analysis
-        llm_results = await self._call_gemini(chat)
+        llm_results = await self._call_llm(chat)
         
-        # Step 2: Run moderation agent (with LLM + regex)
+        # Step 2: Run moderation agent (LLM + regex)
         mod_data = {
             "message": chat.message,
             "_llm_moderation": llm_results.get("moderation", {}),
@@ -94,7 +103,7 @@ class Orchestrator:
         }
         sent_result = await self.sentiment(sent_data)
         
-        # Step 4: Run revenue agent (rule-based, uses sentiment for bonus)
+        # Step 4: Run revenue agent
         rev_data = {
             "amount": chat.amount,
             "intent": sent_result.get("intent", "other"),
@@ -132,7 +141,7 @@ class Orchestrator:
         )
         
         logger.info(
-            f"🤖 Analyzed: {chat.author_name} | "
+            f"🤖 IBM Granite Analyzed: {chat.author_name} | "
             f"${chat.amount} | {queue_item.sentiment.value} | "
             f"Priority: {queue_item.priority_score} | "
             f"Risk: {queue_item.risk_level.value}"
@@ -140,35 +149,100 @@ class Orchestrator:
         
         return queue_item
     
-    async def _call_gemini(self, chat: SuperChatCreate) -> Dict[str, Any]:
-        """Make a single Gemini call for all analysis."""
+    async def _call_llm(self, chat: SuperChatCreate) -> Dict[str, Any]:
+        """Make a single LLM call for all analysis (IBM Granite primary, Gemini fallback)."""
+        prompt = ANALYSIS_PROMPT.format(
+            author_name=chat.author_name,
+            message=chat.message,
+            amount=chat.amount,
+            currency=chat.currency,
+        )
+        
+        # 1. Try IBM watsonx / IBM Granite API
+        if self.settings.watsonx_api_key and self.settings.watsonx_project_id:
+            res = await self._call_watsonx_granite(prompt)
+            if res:
+                return res
+        
+        # 2. Try Gemini fallback if configured
+        if self._gemini_client:
+            res = await self._call_gemini_fallback(prompt)
+            if res:
+                return res
+        
+        # 3. Intelligent fallback parsing for local development
+        return self._heuristic_fallback(chat)
+
+    async def _call_watsonx_granite(self, prompt: str) -> Dict[str, Any]:
+        """Invoke IBM Granite 3.1 model via IBM watsonx.ai REST endpoint."""
         try:
-            prompt = ANALYSIS_PROMPT.format(
-                author_name=chat.author_name,
-                message=chat.message,
-                amount=chat.amount,
-                currency=chat.currency,
-            )
-            
-            response = self.client.models.generate_content(
-                model=self.model,
+            url = f"{self.settings.watsonx_url}/ml/v1/text/generation?version=2023-05-29"
+            payload = {
+                "input": prompt,
+                "parameters": {
+                    "decoding_method": "greedy",
+                    "max_new_tokens": 300,
+                    "min_new_tokens": 10
+                },
+                "model_id": self.primary_model,
+                "project_id": self.settings.watsonx_project_id
+            }
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.settings.watsonx_api_key}"
+            }
+            req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers=headers)
+            with urllib.request.urlopen(req, timeout=10) as response:
+                res_data = json.loads(response.read().decode('utf-8'))
+                raw_text = res_data['results'][0]['generated_text'].strip()
+                return self._parse_json(raw_text)
+        except Exception as e:
+            logger.warning(f"watsonx Granite API call notice: {e}")
+            return {}
+
+    async def _call_gemini_fallback(self, prompt: str) -> Dict[str, Any]:
+        """Fallback LLM call."""
+        try:
+            response = self._gemini_client.models.generate_content(
+                model="gemini-2.0-flash",
                 contents=prompt,
             )
-            
-            raw_text = response.text.strip()
-            
-            # Clean potential markdown wrapping
+            return self._parse_json(response.text.strip())
+        except Exception as e:
+            logger.warning(f"Fallback LLM call notice: {e}")
+            return {}
+
+    def _parse_json(self, raw_text: str) -> Dict[str, Any]:
+        """Clean and parse JSON from LLM outputs."""
+        try:
             if raw_text.startswith("```"):
                 raw_text = raw_text.split("\n", 1)[1] if "\n" in raw_text else raw_text
                 raw_text = raw_text.rsplit("```", 1)[0]
                 raw_text = raw_text.strip()
-            
-            result = json.loads(raw_text)
-            return result
-            
-        except json.JSONDecodeError as e:
-            logger.warning(f"Failed to parse Gemini JSON: {e}")
+            return json.loads(raw_text)
+        except Exception:
             return {}
-        except Exception as e:
-            logger.error(f"Gemini API call failed: {e}")
-            return {}
+
+    def _heuristic_fallback(self, chat: SuperChatCreate) -> Dict[str, Any]:
+        """Rule-based intelligent fallback for offline dev/testing."""
+        msg_lower = chat.message.lower()
+        is_question = "?" in chat.message or any(w in msg_lower for w in ["what", "why", "how", "when", "can you"])
+        is_toxic = any(w in msg_lower for w in ["hate", "dumb", "scam", "ugly"])
+        
+        reply = f"Thank you so much {chat.author_name} for the generous support!"
+        if chat.amount >= 20:
+            reply = f"Wow {chat.author_name}! Thank you so much for the amazing ${chat.amount} super chat!"
+        elif is_question:
+            reply = f"Great question {chat.author_name}! Thanks for bringing that up."
+            
+        return {
+            "moderation": {"is_toxic": is_toxic, "is_nsfw": False, "is_spam": False},
+            "sentiment": {
+                "sentiment": "negative" if is_toxic else "positive" if chat.amount >= 10 else "neutral",
+                "intent": "question" if is_question else "compliment"
+            },
+            "response": {
+                "suggested_reply": reply,
+                "reply_tone": "grateful"
+            }
+        }

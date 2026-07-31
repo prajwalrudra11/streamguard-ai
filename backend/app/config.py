@@ -23,8 +23,15 @@ class Settings(BaseSettings):
     supabase_key: str = Field(..., alias="SUPABASE_KEY")
     supabase_service_key: Optional[str] = Field(default=None, alias="SUPABASE_SERVICE_KEY")
     
-    # ── Google Gemini ────────────────────────────────────
-    gemini_api_key: str = Field(..., alias="GEMINI_API_KEY")
+    # ── IBM watsonx / IBM Granite AI Engine (Primary) ───
+    ibm_granite_model: str = Field(default="ibm/granite-3-8b-instruct", alias="IBM_GRANITE_MODEL")
+    watsonx_api_key: Optional[str] = Field(default=None, alias="WATSONX_API_KEY")
+    watsonx_project_id: Optional[str] = Field(default=None, alias="WATSONX_PROJECT_ID")
+    watsonx_url: str = Field(default="https://us-south.ml.cloud.ibm.com", alias="WATSONX_URL")
+    ibm_bob_api_key: Optional[str] = Field(default=None, alias="IBM_BOB_API_KEY")
+    
+    # ── Fallback Provider (Optional) ────────────────────
+    gemini_api_key: Optional[str] = Field(default=None, alias="GEMINI_API_KEY")
     
     # ── YouTube API (Phase 3) ────────────────────────────
     youtube_client_id: Optional[str] = Field(default=None, alias="YOUTUBE_CLIENT_ID")
