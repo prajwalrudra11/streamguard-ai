@@ -173,9 +173,28 @@ class Orchestrator:
         # 3. Intelligent fallback parsing for local development
         return self._heuristic_fallback(chat)
 
+    async def _get_iam_token(self, api_key: str) -> str:
+        """Exchange IBM Cloud API key for an IAM Bearer access token."""
+        if not api_key or api_key.startswith("ey"):  # Already a bearer token
+            return api_key
+        try:
+            url = "https://iam.cloud.ibm.com/identity/token"
+            data = urllib.parse.urlencode({
+                "grant_type": "urn:ibm:params:oauth:grant-type:apikey",
+                "apikey": api_key
+            }).encode("utf-8")
+            req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/x-www-form-urlencoded"})
+            with urllib.request.urlopen(req, timeout=5) as response:
+                res = json.loads(response.read().decode("utf-8"))
+                return res.get("access_token", api_key)
+        except Exception as e:
+            logger.warning(f"IBM Cloud IAM token exchange notice: {e}")
+            return api_key
+
     async def _call_watsonx_granite(self, prompt: str) -> Dict[str, Any]:
         """Invoke IBM Granite 3.1 model via IBM watsonx.ai REST endpoint."""
         try:
+            bearer_token = await self._get_iam_token(self.settings.watsonx_api_key)
             url = f"{self.settings.watsonx_url}/ml/v1/text/generation?version=2023-05-29"
             payload = {
                 "input": prompt,
@@ -189,7 +208,7 @@ class Orchestrator:
             }
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.settings.watsonx_api_key}"
+                "Authorization": f"Bearer {bearer_token}"
             }
             req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers=headers)
             with urllib.request.urlopen(req, timeout=10) as response:

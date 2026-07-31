@@ -47,7 +47,7 @@ class WSConnectionManager:
     async def send_to(self, websocket: WebSocket, data: dict):
         """Send data to a specific client."""
         try:
-            await ws.send_json(data)
+            await websocket.send_json(data)
         except Exception:
             self.disconnect(websocket)
 
@@ -67,6 +67,10 @@ def get_queue() -> QueueManager:
         from app.config import get_settings
         _queue = QueueManager(max_size=get_settings().max_queue_size)
     return _queue
+
+
+# Alias for get_queue
+get_queue_manager = get_queue
 
 
 def get_voice_matcher() -> VoiceMatcher:
